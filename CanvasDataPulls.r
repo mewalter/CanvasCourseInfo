@@ -29,7 +29,7 @@ categorydata <- fromJSON(call4cats)   # this has the ID for each group
 #now find all the ids and names of each group/team in each category  
 groups_call <- paste0("/groups?per_page=100&access_token=",token)
 #call4groups <- paste0(canvas_base,"group_categories/",categorydata$id,groups_call)       ############## this is when there is only 1 group ##########
-call4groups <- paste0(canvas_base,"group_categories/",categorydata$id[2],groups_call)     ############## this is when there are 2 groups ########## 
+call4groups <- paste0(canvas_base,"group_categories/",categorydata$id[1],groups_call)     ############## this is when there are 2 groups ########## 
 groupdata <- fromJSON(call4groups)
 # parse the groupdata into GroupID, GroupName, and MemberCnt ... all vectors ... AND drop any groups that have zero members
 group_info <- tibble(GroupID=groupdata$id,GroupName=groupdata$name,MemberCnt=groupdata$members_count) %>% filter(MemberCnt>0)    # this has 
