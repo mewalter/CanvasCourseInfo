@@ -39,11 +39,11 @@ group_info <- tibble(GroupID=groupdata$id,GroupName=groupdata$name,MemberCnt=gro
 users_call <- paste0("/users?per_page=100&access_token=",token)
 call4users <- paste0(canvas_base,"groups/",group_info$GroupID,users_call)  
 
-teamdata <- tibble(ProjectName=character(), NumMembers=numeric(), UCInetID=character(), Name=character())
+teamdata <- tibble(ProjectName=character(), NumMembers=numeric(), UCInetID=character(), Email=character(), Name=character())
 for (i in 1:nrow(group_info)) {
   userdata <- fromJSON(call4users[i])
   teamdata <- teamdata %>% add_row(ProjectName=group_info$GroupName[i],NumMembers=group_info$MemberCnt[i],
-                                   UCInetID=userdata$login_id,Name=userdata$name)
+                                   UCInetID=userdata$login_id,Email=paste0(userdata$login_id,"@uci.edu"),Name=userdata$name)
 }
 
 
