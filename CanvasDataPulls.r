@@ -9,11 +9,11 @@ library("jsonlite")
 # rm(list=ls())         # remove all global environment variables
 
 
-######### NOTE: carefull about how many group category you have! ##################
+######### NOTE: careful about how many group category you have! ##################
 
 # set the Canvas Class ID
-class_id <- "67737"   # MAE151A F24
-
+class_id <- "76738"   # MAE151A F25
+#class_id <- "69583"   # MAE151B W26
 
 # set some strings for the fromJSON calls
 token <- "4407~cV0DPpTSmVsjyrYteGHINIXvE76TD7RTy750ASCHFUfj6yqMONUXOqlgWsoPkIXt" #Authorization token. Set this up in your Canvas profile
@@ -28,8 +28,12 @@ categorydata <- fromJSON(call4cats)   # this has the ID for each group
 
 #now find all the ids and names of each group/team in each category  
 groups_call <- paste0("/groups?per_page=100&access_token=",token)
+
+#################### Check which of the 2 situations are relevant ##################
 #call4groups <- paste0(canvas_base,"group_categories/",categorydata$id,groups_call)       ############## this is when there is only 1 group ##########
 call4groups <- paste0(canvas_base,"group_categories/",categorydata$id[1],groups_call)     ############## this is when there are 2 groups ########## 
+
+
 groupdata <- fromJSON(call4groups)
 # parse the groupdata into GroupID, GroupName, and MemberCnt ... all vectors ... AND drop any groups that have zero members
 group_info <- tibble(GroupID=groupdata$id,GroupName=groupdata$name,MemberCnt=groupdata$members_count) %>% filter(MemberCnt>0)    # this has 
@@ -73,4 +77,15 @@ sectionteamdata <- teamdata %>% left_join(section_info, by="Name")
 
 write.csv(teamdata, file = "GroupsWithNames.csv",row.names=FALSE)
 write.csv(sectionteamdata, file = "GroupsWithNamesAndSections.csv",row.names=FALSE)
+
+
+# If Desired, read the roster to get sponsor information
+roster <- read.csv(file = "F25_151A_TeamRoster - 151A teams.csv",header = TRUE, stringsAsFactors = FALSE)
+
+projectssponsors <- roster %>% slice(c(1,2)) %>% select_if(~ !any(is.na(.)|. == "")) %>%          # select first 2 rows and drop any columns with NA or blanks
+  rownames_to_column() %>%  pivot_longer(-rowname) %>%  pivot_wider(names_from=rowname, values_from=value) %>% `colnames<-`(.[1, ]) %>% .[-1,-1] %>%      # transpose
+  rename_all(~str_replace_all(., "\\s+", "")) %>%                       # remove spaces from row names
+  mutate(FirstName = str_extract(ProjectSponsor, "[A-Za-z]+"))          # extract first name from ProjectSponsor column
+
+
 
